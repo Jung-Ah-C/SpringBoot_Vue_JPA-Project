@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:8086")
@@ -20,7 +21,20 @@ public class VueProjectController {
 
     @GetMapping("/findAll")
     public ResponseEntity<List<VueProject>> getAllVueProject(@RequestParam(required = false) String keyword) {
-        return null;
+        try {
+            List<VueProject> vueProjectList = new ArrayList<>();
+            if(keyword == null) {
+                vueProjectList.addAll(vueProjectRepository.findAll());
+            } else {
+                vueProjectList.addAll(vueProjectRepository.findByTitleContaining(keyword));
+            }
+            if(vueProjectList.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(Exception exception) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 데이터 검색
