@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:8086")
 @RestController
@@ -31,7 +32,7 @@ public class VueProjectController {
             if(vueProjectList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(vueProjectList, HttpStatus.OK);
         } catch(Exception exception) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -58,7 +59,17 @@ public class VueProjectController {
     // 데이터 수정
     @PutMapping("/update")
     public ResponseEntity<VueProject> updateVueProject(@PathVariable("id") long id, @RequestBody VueProject vueProject) {
-        return null;
+        Optional<VueProject> foundVueProject = vueProjectRepository.findById(id);
+        if(foundVueProject.isPresent()) {
+            VueProject data = foundVueProject.get();
+            data.setTitle(vueProject.getTitle());
+            data.setDescription(vueProject.getDescription());
+            data.setPublished(vueProject.isPublished());
+
+            return new ResponseEntity<>(vueProjectRepository.save(data), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 
     @DeleteMapping("/deleteById")
